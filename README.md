@@ -1,118 +1,168 @@
-# Integrated Management System
+# Integrated Management System (IMS)
 
-Proyecto desarrollado en **MySQL**, enfocado en la creación de una base de
-datos relacional y un conjunto completo de **Stored Procedures** para gestionar productos,
-ventas y detalles de venta.
+Proyecto desarrollado en **MySQL**, orientado al diseño de una base de datos relacional con un conjunto completo de **Stored Procedures**, **validaciones internas**, **cáculos automáticos**, **triggers** y **tablas de bitácora** para gestionar productos, venta y detalles de venta.
 
-Incluye procedimientos para operaciones **CRUD**, validaciones mediante *handlers* con
-*SIGNAL*, así como una estructura modular orientada a la integridad de datos.
+El objetivo del sistema es asegurar la integridad de los datos mediante una arquitectura modular, validaciones consistentes y automatización de procesos clave relacionados a una venta completa.
 
 ---
 
 ### Estructura de la Base de Datos
 
-El sistema está divido en tres tablas principales:
+El sistema se compone de tres tablas principales:
 
 **1. productos**
-Contiene el catálogo de productos disponibles.
-Campos:
-- *id_producto* (PK).
-- *descripcion*.
-- *precio_unitario*.
+Catálogo de productos.
+**Campos principales**:
+- *id_producto* (PK)
+- *descripcion*
+- *precio_unitario*
 
 **2. ventas_enc**
-Tabla que almacena el encabezado de cada venta.
-Campos:
-- *id_venta_enc* (PK).
-- *fecha*.
-- *total*.
+Encabezado general de cada venta.
+**Campos principales**:
+- *id_venta_enc* (PK)
+- *fecha*
+- *total*
 
 **3. ventas_det**
-Registra los detalles asociados a cada venta: cantidad, precio individual, IVA, etc.
-Campos:
-- *id_venta_det* (PK).
-- *id_venta_enc*.
-- *id_producto*.
+Detalle asociado a cada venta.
+**Campos pricipales**:
+- *id_venta_det* (PK)
+- *id_venta_enc* (FK)
+- *id_producto* (FK)
+- *cantidad*, *iva*, *precio_venta*
 
 ---
 
 ### Funcionalidades del Proyecto
 
-El proyecto implementa un conjunto de Stored Procedures organizados por módulo:
+El proyecto implementa un conjunto de módulos organizados por tabla y tipo de operación:
 
-**Productos**
+**Módulo de Productos**
 Inlcuye procedimientos para:
 - Crear productos.
-- Leer proudctos (por ID o todos).
+- Leer proudctos (por ID y global).
 - Actualizar productos.
 - Eliminar productos.
-- Validar existencia (*producto_no_existe*).
+- Validar su existencia mediante *producto_no_existe*.
 
-**Objetivo:** Facilitar la administración del catálogo con validaciones internas para evitar
-inconcistencias.
+**Objetivo:** Mantener un catálogo limpio, consistente y con validaciones para evitar operaciones inválidas.
 
-**Ventas - Encabezado (*ventas_enc*)**
+**Módulo de Ventas - Encabezado (*ventas_enc*)**
 Procedimientos para:
-- Insertar una venta.
-- Consultar venta por ID o listar todas.
-- Actualizar encabezados.
-- Eliminar una venta.
-- Validar existencia (*venta_enc_no_existe*).
+- Insertar nuevas ventas.
+- Leer encabezados (por ID y global).
+- Actualizar una venta.
+- Eliminar ventas.
+- Validar encabezados con *venta_enc_no_existe*.
 
-**Objetivo:** Asegurar el manejo correcto de totales y fechas de las ventas registradas.
+**Objetivo:** Garantizar que cada venta regitre correctamente fechas y totales.
 
-**Ventas - Detalle (*ventas_det*)**
+**Módulo de Ventas - Detalle (*ventas_det*)**
 Procedimientos para:
 - Insertar líneas de detalle.
 - Leer datalles (por ID o global).
 - Actualizar registros.
 - Eliminar registros.
-- Validar existencia (*ventas_det_no_existe*)
+- Validar existencia mediante *ventas_det_no_existe*.
 
-**Objetivo:** Controlar cantidades, IVA y precios asociados a los productos vendidos.
+**Objetivo:** Controlar información como cantidades, IVA y precio de cada producto vendido.
 
 **Transacción de Venta Completa**
-El procedimiento *venta_completa_insert* automatiza la operación más importante:
-**1. ** Inserta el encabezado de la venta.
-**2. ** Obtiene el ID generado.
-**3. ** Inserta el datalle correspondiente.
-**4. ** Relaciona todo correctamente en la base de datos.
+El sistema integra lógica avanzada para gestionar una venta completa mediante diferentes procedimientos:
+**Lectura de venta completa**
+- *venta_completa_read()*
+- *venta_completa_read_id(id)*
+Permiten obtener encabezado y detalle en una sola consulta.
 
-**Obejtivo:** Este procedimiento integra ambos módulos y simula un flujo real de registro de ventas.
+**Actualización de venta completa**
+- *venta_completa_update(...)*
+Actualiza tanto el detalle como encabezado en una misma operación.
 
----
-
-### Validaciones y Manejo de Errores
-
-El proyecto utiliza:
-- *SIGNAL SQLSTATE '45000'*.
-- Mensajes perzonalizados de error.
-
-Esto permite interrumpir procedimientos cuando:
-- Un producto no existe.
-- Un encabezado de venta no existe.
-- Un detalle de venta no existe.
-
-Asegurando así la integridad referencial del sistema.
+**Eliminación de venta completa**
+- *venta_completa_delete(id_det, id_enc)*
+Elimina registros relacionados, asegurando previamente que ambos existan.
 
 ---
 
-### Objetivo
+### Procedimientos de Cálculo Automático
 
-Este proyecto busca reforzar:
-- Diseño de base de datos relacionales.
-- Modularización con Sotred Procedures.
-- Uso de validaciones y control de errores.
-- Flujo completo de operaciones CRUD.
-- Implementación de lógica de negocio dentro del motor SQL.
+El sistema incluye lógica adicional para calcular valores derivados de una venta:
+
+**calcular_utilidad**
+Calcula el margen del 20% según cantidad y precio unitario.
+
+**calcular_iva**
+Determina el IVA (12%) considereando el precio base + utilidad.
+
+**calcular_precio_venta**
+Combina utilidad + IVA para obtener el precio final de venta del producto.
+
+**calcular_total_venta**
+Suma todos los precios de detalle para actualizar el total en *ventas_enc*.
 
 ---
 
-### Notas Finales
+### Tablas de Bitácora y Seguimiento
 
-Este repositorio contiene el código SQL necesario para levantar la estrucutra completa del
-sistema, incluyendo:
-- Creación de tablas.
-- Procedimientos para CRUD.
-- Validaciones internas.
-- Inserción de ventas completas.
+Para registrar operaciones críticas, se crearon tablas especializadas:
+
+**tipo_operacion**
+Define los tipos:
+1 = INSERT
+2 = UPDATE
+3 = DELETE
+
+**productos_bitacora y ventas_enc_bitacora**
+Registran automáticamente:
+- ID afectado.
+- Fecha y hora.
+- Usuario.
+- Tipo de operación.
+
+---
+
+### Triggers Automáticos
+
+El sistema utiliza *triggers* para llenar las bitácoras:
+
+**Productos**
+- *productos_insert*
+- *productos_update*
+- *productos_delete*
+
+**Ventas Encabezado**
+- *ventas_enc_insert*
+- *ventas_enc_update*
+- *ventas_enc_delete*
+
+**Objetivo:** Auditar cambios de forma transparente y automática.
+
+---
+
+### Objetivos del Proyecto
+
+Este proyecto busca fortalecer:
+- Diseño y administración de bases de datos relacionales.
+- Uso de procedimientos almacenados para modularizar la lógica.
+- Manejo de validaciones con *SIGNAL* y mensajes personalizados.
+- Automatización del flujo correcto de ventas.
+- Implementación de cálculos contables dentro del motor SQL.
+- Auditoría mediante triggers y tablas de bitácora.
+
+---
+
+### Contenido del Repositorio
+
+Incluye:
+- Scripts de creación de tablas.
+- Procedimientos CRUD.
+- Triggers y tablas de bitácora.
+- Cálculos autómaticos (utilidad, IVA, precio final, total).
+- Archivos de prueba (*insert*, *select*, *update*, *delete*).
+
+---
+
+### Autor
+
+**Pablo Jacob** estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación. Interesado en desarrollo backend y automatización.

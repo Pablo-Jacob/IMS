@@ -5,7 +5,7 @@ DELIMITER //
 CREATE PROCEDURE productos_delete(IN p_id_producto INT)
 BEGIN
 	-- Verificar que el producto existe
-    CALL producto_no_existe(p_id_proucto);
+    CALL producto_no_existe(p_id_producto);
     
 	DELETE FROM productos WHERE id_producto = p_id_producto;
 END //

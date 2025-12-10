@@ -1,26 +1,26 @@
 ✓Cree tres tablas que estén relacionadas llamadas: productos, ventas_enc y ventas_det.
 	✓Productos
-		Id_producto pk
-		Descripción
-		Precio_unitario
+		✓Id_producto pk
+		✓Descripción
+		✓Precio_unitario
 	✓Ventas_enc
-		Id_venta pk
-		Fecha
-		Total
+		✓Id_venta pk
+		✓Fecha
+		✓Total
 	✓Ventas_det
-		Id_det pk
-		Id_venta_det fk
-		Id_producto fk
-		Cantidad
-		IVA  ---> Debe ser calculado por un procedimiento almacenado sobre el 12% del valor del producto.
-		Precio_venta ---> se debe calcular el 20% de utilidad sobre el precio unitario.
+		✓Id_det pk
+		✓Id_venta_det fk
+		✓Id_producto fk
+		✓Cantidad
+		✓IVA  ---> Debe ser calculado por un procedimiento almacenado sobre el 12% del valor del producto.
+		✓Precio_venta ---> se debe calcular el 20% de utilidad sobre el precio unitario.
 
 ✓En caso el producto no exista debe producir un mensaje: "Producto no existe".
 
-Se deben crear procedimientos almacenados que permitan realizar el cálculo del IVA y de la utilidad en cada venta registrada.
+✓Se deben crear procedimientos almacenados que permitan realizar el cálculo del IVA y de la utilidad en cada venta registrada.
 
-Programe dos disparadores que registren las transacciones que se inserten, actualicen o se elimines de las primera dos tablas.
-	Fecha y hora.
-	Usuario que realizo la transacciones.
-	Tipo de operación.
-Insert, update o delete.
+✓Programe dos disparadores que registren las transacciones que se inserten, actualicen o se elimines de las primera dos tablas.
+	✓Fecha y hora.
+	✓Usuario que realizo la transacciones.
+	✓Tipo de operación.
+✓Insert, update o delete.
