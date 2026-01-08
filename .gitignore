@@ -1,4 +1,6 @@
 data.txt
-modulo_1/requirements.txt
+database/module_1/requirements.txt
 IMS.docx
 IMS.pdf
+node_modules
+.env

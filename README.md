@@ -1,168 +1,173 @@
 # Integrated Management System (IMS)
 
-Proyecto desarrollado en **MySQL**, orientado al diseño de una base de datos relacional con un conjunto completo de **Stored Procedures**, **validaciones internas**, **cáculos automáticos**, **triggers** y **tablas de bitácora** para gestionar productos, venta y detalles de venta.
+Proyecto académico desarrollado con **MySQL** y **Node.js**, enfocado en el diseño y administración de una base de datos relacional que implementa **procedimientos almacenados**, **validaciones**, **cálculos automáticos**, **triggers** y **tablas de bitácora** para la gestión de productos y ventas.
 
-El objetivo del sistema es asegurar la integridad de los datos mediante una arquitectura modular, validaciones consistentes y automatización de procesos clave relacionados a una venta completa.
-
----
-
-### Estructura de la Base de Datos
-
-El sistema se compone de tres tablas principales:
-
-**1. productos**
-Catálogo de productos.
-**Campos principales**:
-- *id_producto* (PK)
-- *descripcion*
-- *precio_unitario*
-
-**2. ventas_enc**
-Encabezado general de cada venta.
-**Campos principales**:
-- *id_venta_enc* (PK)
-- *fecha*
-- *total*
-
-**3. ventas_det**
-Detalle asociado a cada venta.
-**Campos pricipales**:
-- *id_venta_det* (PK)
-- *id_venta_enc* (FK)
-- *id_producto* (FK)
-- *cantidad*, *iva*, *precio_venta*
+El sistema simula el flujo completo de una venta, asegurando la integridad de los datos y automatizando cálculos como utilidad, IVA y total de la venta directamente desde la base de datos.
 
 ---
 
-### Funcionalidades del Proyecto
+## Estructura de la Base de Datos
 
-El proyecto implementa un conjunto de módulos organizados por tabla y tipo de operación:
+El sistema se compone de tres tablas principales relacionadas entre sí:
 
-**Módulo de Productos**
-Inlcuye procedimientos para:
-- Crear productos.
-- Leer proudctos (por ID y global).
-- Actualizar productos.
-- Eliminar productos.
-- Validar su existencia mediante *producto_no_existe*.
+### 1. productos
+Almacena el catálogo de productos.
 
-**Objetivo:** Mantener un catálogo limpio, consistente y con validaciones para evitar operaciones inválidas.
+Campos:
+- id_producto (PK)
+- descripcion
+- precio_unitario
 
-**Módulo de Ventas - Encabezado (*ventas_enc*)**
-Procedimientos para:
-- Insertar nuevas ventas.
-- Leer encabezados (por ID y global).
-- Actualizar una venta.
-- Eliminar ventas.
-- Validar encabezados con *venta_enc_no_existe*.
+### 2. ventas_enc
+Representa el encabezado de cada venta.
 
-**Objetivo:** Garantizar que cada venta regitre correctamente fechas y totales.
+Campos:
+- id_venta_enc (PK)
+- fecha
+- total
 
-**Módulo de Ventas - Detalle (*ventas_det*)**
-Procedimientos para:
-- Insertar líneas de detalle.
-- Leer datalles (por ID o global).
-- Actualizar registros.
-- Eliminar registros.
-- Validar existencia mediante *ventas_det_no_existe*.
+### 3. ventas_det
+Detalle de los productos vendidos en cada venta.
 
-**Objetivo:** Controlar información como cantidades, IVA y precio de cada producto vendido.
-
-**Transacción de Venta Completa**
-El sistema integra lógica avanzada para gestionar una venta completa mediante diferentes procedimientos:
-**Lectura de venta completa**
-- *venta_completa_read()*
-- *venta_completa_read_id(id)*
-Permiten obtener encabezado y detalle en una sola consulta.
-
-**Actualización de venta completa**
-- *venta_completa_update(...)*
-Actualiza tanto el detalle como encabezado en una misma operación.
-
-**Eliminación de venta completa**
-- *venta_completa_delete(id_det, id_enc)*
-Elimina registros relacionados, asegurando previamente que ambos existan.
+Campos:
+- id_venta_det (PK)
+- id_venta_enc (FK)
+- id_producto (FK)
+- cantidad
+- iva
+- precio_venta
 
 ---
 
-### Procedimientos de Cálculo Automático
+## Funcionalidades del Sistema
 
-El sistema incluye lógica adicional para calcular valores derivados de una venta:
+### Módulo de Productos
+Incluye procedimientos almacenados para:
+- Crear productos
+- Listar productos
+- Consultar productos por ID
+- Actualizar productos
+- Eliminar productos
+- Validar existencia mediante `producto_no_existe`
 
-**calcular_utilidad**
-Calcula el margen del 20% según cantidad y precio unitario.
-
-**calcular_iva**
-Determina el IVA (12%) considereando el precio base + utilidad.
-
-**calcular_precio_venta**
-Combina utilidad + IVA para obtener el precio final de venta del producto.
-
-**calcular_total_venta**
-Suma todos los precios de detalle para actualizar el total en *ventas_enc*.
+**Objetivo:** evitar operaciones inválidas y mantener consistencia en el catálogo.
 
 ---
 
-### Tablas de Bitácora y Seguimiento
-
-Para registrar operaciones críticas, se crearon tablas especializadas:
-
-**tipo_operacion**
-Define los tipos:
-1 = INSERT
-2 = UPDATE
-3 = DELETE
-
-**productos_bitacora y ventas_enc_bitacora**
-Registran automáticamente:
-- ID afectado.
-- Fecha y hora.
-- Usuario.
-- Tipo de operación.
+### Módulo de Ventas – Encabezado (ventas_enc)
+Permite:
+- Insertar ventas
+- Leer ventas (general y por ID)
+- Actualizar encabezados
+- Eliminar ventas
+- Validar existencia con `venta_enc_no_existe`
 
 ---
 
-### Triggers Automáticos
-
-El sistema utiliza *triggers* para llenar las bitácoras:
-
-**Productos**
-- *productos_insert*
-- *productos_update*
-- *productos_delete*
-
-**Ventas Encabezado**
-- *ventas_enc_insert*
-- *ventas_enc_update*
-- *ventas_enc_delete*
-
-**Objetivo:** Auditar cambios de forma transparente y automática.
-
----
-
-### Objetivos del Proyecto
-
-Este proyecto busca fortalecer:
-- Diseño y administración de bases de datos relacionales.
-- Uso de procedimientos almacenados para modularizar la lógica.
-- Manejo de validaciones con *SIGNAL* y mensajes personalizados.
-- Automatización del flujo correcto de ventas.
-- Implementación de cálculos contables dentro del motor SQL.
-- Auditoría mediante triggers y tablas de bitácora.
-
----
-
-### Contenido del Repositorio
-
+### Módulo de Ventas – Detalle (ventas_det)
 Incluye:
-- Scripts de creación de tablas.
-- Procedimientos CRUD.
-- Triggers y tablas de bitácora.
-- Cálculos autómaticos (utilidad, IVA, precio final, total).
-- Archivos de prueba (*insert*, *select*, *update*, *delete*).
+- Inserción de detalles de venta
+- Lectura general y por ID
+- Actualización de registros
+- Eliminación de detalles
+- Validación mediante `venta_det_no_existe`
 
 ---
 
-### Autor
+## Venta Completa
 
-**Pablo Jacob** estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación. Interesado en desarrollo backend y automatización.
+El sistema permite manejar una venta completa combinando encabezado y detalle:
+
+- `venta_completa_read`
+- `venta_completa_read_id`
+- `venta_completa_update`
+- `venta_completa_delete`
+
+Esto permite consultar, actualizar o eliminar una venta de forma controlada y coherente.
+
+---
+
+## Cálculos Automáticos
+
+El sistema realiza cálculos directamente en la base de datos mediante procedimientos almacenados:
+
+- **calcular_utilidad**  
+  Aplica un margen del 20% sobre el precio unitario.
+
+- **calcular_iva**  
+  Calcula el IVA del 12% sobre el precio con utilidad incluida.
+
+- **calcular_precio_venta**  
+  Obtiene el precio final del producto.
+
+- **calcular_total_venta**  
+  Actualiza automáticamente el total del encabezado de la venta.
+
+---
+
+## Bitácoras y Auditoría
+
+Se implementaron tablas de bitácora para auditar operaciones:
+
+### tipo_operacion
+Define el tipo de acción:
+- 1 = INSERT
+- 2 = UPDATE
+- 3 = DELETE
+
+### productos_bitacora
+### ventas_enc_bitacora
+
+Cada registro almacena:
+- ID afectado
+- Fecha y hora
+- Usuario
+- Tipo de operación
+
+---
+
+## Triggers Implementados
+
+Los triggers registran automáticamente las operaciones realizadas:
+
+### Productos
+- INSERT
+- UPDATE
+- DELETE
+
+### Ventas Encabezado
+- INSERT
+- UPDATE
+- DELETE
+
+**Objetivo:** mantener un historial de cambios sin intervención manual.
+
+---
+
+## Backend (Node.js)
+
+El proyecto incluye una API REST básica desarrollada con **Express** que consume los procedimientos almacenados:
+
+- Arquitectura modular (routes, controllers, services)
+- Conexión mediante `mysql2`
+- Uso de variables de entorno
+- Endpoints CRUD para productos
+
+---
+
+## Objetivos del Proyecto
+
+- Aplicar diseño de bases de datos relacionales
+- Usar procedimientos almacenados para encapsular lógica
+- Implementar validaciones con `SIGNAL`
+- Automatizar cálculos contables
+- Auditar operaciones mediante triggers
+- Integrar MySQL con Node.js
+
+---
+
+## Autor
+
+**Pablo Jacob**  
+Estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación  
+Interesado en desarrollo backend y automatización.

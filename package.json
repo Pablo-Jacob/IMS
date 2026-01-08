@@ -1,0 +1,36 @@
+{
+  "name": "integrated_management_system",
+  "version": "1.0.0",
+  "description": "Proyecto desarrollado en MySQL y Node.js",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/app.js",
+    "dev": "nodemon ./src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pablo-Jacob/IMS.git"
+  },
+  "keywords": [
+    "MySQL",
+    "Node.js",
+    "backend",
+    "API",
+    "REST"
+  ],
+  "author": "Pablo-Jacob",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pablo-Jacob/IMS/issues"
+  },
+  "homepage": "https://github.com/Pablo-Jacob/IMS#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mysql2": "^3.16.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
