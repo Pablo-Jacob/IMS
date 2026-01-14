@@ -1,24 +1,41 @@
 # Integrated Management System (IMS)
 
-Proyecto académico desarrollado con **MySQL** y **Node.js**, enfocado en el diseño y administración de una base de datos relacional que implementa **procedimientos almacenados**, **validaciones**, **cálculos automáticos**, **triggers** y **tablas de bitácora** para la gestión de productos y ventas.
+Proyecto académico desarrollado como parte de mi formación en **Ingeniería en Sistemas de Información y Ciencias de la Computación**, enfocado en el diseño e implementación de una **base de datos relacional robusta**, integrando lógica de negocio directamente en **MySQL** mediante procedimientos almacenados, validaciones, cálculos automáticos y triggers.
 
-El sistema simula el flujo completo de una venta, asegurando la integridad de los datos y automatizando cálculos como utilidad, IVA y total de la venta directamente desde la base de datos.
+El sistema simula el flujo completo de una venta, desde el registro del producto hasta el cálculo automático de utilidad, IVA y total de la venta, garantizando integridad, trazabilidad y control de los datos.
+
+---
+
+## Tecnologías Utilizadas
+
+- **MySQL**  
+  - Procedimientos almacenados  
+  - Triggers  
+  - Validaciones con `SIGNAL`  
+  - Manejo de transacciones y relaciones
+- **Node.js**
+- **Express**
+- **mysql2**
+- **JavaScript (ES Modules)**
+- **Git / GitHub**
 
 ---
 
 ## Estructura de la Base de Datos
 
-El sistema se compone de tres tablas principales relacionadas entre sí:
+La base de datos se compone de tres tablas principales relacionadas entre sí:
 
-### 1. productos
-Almacena el catálogo de productos.
+### productos
+Almacena el catálogo de productos disponibles.
 
 Campos:
 - id_producto (PK)
 - descripcion
 - precio_unitario
 
-### 2. ventas_enc
+---
+
+### ventas_enc
 Representa el encabezado de cada venta.
 
 Campos:
@@ -26,8 +43,10 @@ Campos:
 - fecha
 - total
 
-### 3. ventas_det
-Detalle de los productos vendidos en cada venta.
+---
+
+### ventas_det
+Contiene el detalle de los productos asociados a cada venta.
 
 Campos:
 - id_venta_det (PK)
@@ -39,130 +58,112 @@ Campos:
 
 ---
 
-## Funcionalidades del Sistema
+## Lógica de Negocio Implementada en la Base de Datos
 
-### Módulo de Productos
-Incluye procedimientos almacenados para:
-- Crear productos
-- Listar productos
-- Consultar productos por ID
-- Actualizar productos
-- Eliminar productos
-- Validar existencia mediante `producto_no_existe`
+Uno de los principales objetivos del proyecto fue trasladar la lógica crítica al motor de base de datos para asegurar consistencia y control.
 
-**Objetivo:** evitar operaciones inválidas y mantener consistencia en el catálogo.
+### Validaciones
+- Verificación de existencia de productos
+- Verificación de encabezados y detalles de venta
+- Uso de `SIGNAL SQLSTATE` para manejar errores controlados
 
----
-
-### Módulo de Ventas – Encabezado (ventas_enc)
-Permite:
-- Insertar ventas
-- Leer ventas (general y por ID)
-- Actualizar encabezados
-- Eliminar ventas
-- Validar existencia con `venta_enc_no_existe`
-
----
-
-### Módulo de Ventas – Detalle (ventas_det)
-Incluye:
-- Inserción de detalles de venta
-- Lectura general y por ID
-- Actualización de registros
-- Eliminación de detalles
-- Validación mediante `venta_det_no_existe`
-
----
-
-## Venta Completa
-
-El sistema permite manejar una venta completa combinando encabezado y detalle:
-
-- `venta_completa_read`
-- `venta_completa_read_id`
-- `venta_completa_update`
-- `venta_completa_delete`
-
-Esto permite consultar, actualizar o eliminar una venta de forma controlada y coherente.
+Ejemplo:
+- “Producto No Existe”
+- “Encabezado No Existe”
+- “Detalle No Existe”
 
 ---
 
 ## Cálculos Automáticos
 
-El sistema realiza cálculos directamente en la base de datos mediante procedimientos almacenados:
+Los cálculos se realizan mediante procedimientos almacenados:
 
-- **calcular_utilidad**  
-  Aplica un margen del 20% sobre el precio unitario.
+- **Utilidad:**  
+  Se calcula un margen del **20%** sobre el precio unitario del producto.
 
-- **calcular_iva**  
-  Calcula el IVA del 12% sobre el precio con utilidad incluida.
+- **IVA:**  
+  Se calcula el **12%** sobre el precio con utilidad incluida.
 
-- **calcular_precio_venta**  
-  Obtiene el precio final del producto.
+- **Precio de Venta:**  
+  Precio final = precio unitario + utilidad + IVA.
 
-- **calcular_total_venta**  
-  Actualiza automáticamente el total del encabezado de la venta.
+- **Total de Venta:**  
+  Se calcula automáticamente a partir del detalle de la venta.
+
+Estos cálculos se ejecutan sin intervención manual y se reflejan directamente en la base de datos.
+
+---
+
+## Gestión de Ventas
+
+El sistema permite manejar una venta completa de forma controlada:
+
+- Lectura general y por ID
+- Actualización de encabezado y detalle
+- Eliminación de ventas completas
+
+Esto garantiza coherencia entre el encabezado y el detalle de cada venta.
 
 ---
 
 ## Bitácoras y Auditoría
 
-Se implementaron tablas de bitácora para auditar operaciones:
+Se implementaron tablas de bitácora para auditar las operaciones realizadas en el sistema.
 
-### tipo_operacion
-Define el tipo de acción:
-- 1 = INSERT
-- 2 = UPDATE
-- 3 = DELETE
-
-### productos_bitacora
-### ventas_enc_bitacora
+### Operaciones Registradas
+- INSERT
+- UPDATE
+- DELETE
 
 Cada registro almacena:
-- ID afectado
+- Identificador del registro afectado
 - Fecha y hora
 - Usuario
 - Tipo de operación
+
+Las bitácoras se generan automáticamente mediante triggers, sin intervención del backend.
 
 ---
 
 ## Triggers Implementados
 
-Los triggers registran automáticamente las operaciones realizadas:
+Se crearon triggers para las siguientes tablas:
 
 ### Productos
-- INSERT
-- UPDATE
-- DELETE
+- AFTER INSERT
+- AFTER UPDATE
+- AFTER DELETE
 
-### Ventas Encabezado
-- INSERT
-- UPDATE
-- DELETE
+### Ventas (Encabezado)
+- AFTER INSERT
+- AFTER UPDATE
+- AFTER DELETE
 
-**Objetivo:** mantener un historial de cambios sin intervención manual.
+**Objetivo:** mantener un historial confiable de todas las operaciones realizadas.
 
 ---
 
-## Backend (Node.js)
+## Backend (API REST)
 
-El proyecto incluye una API REST básica desarrollada con **Express** que consume los procedimientos almacenados:
+El proyecto incluye una API REST básica desarrollada con **Node.js y Express**, que consume los procedimientos almacenados de la base de datos.
 
+Características:
 - Arquitectura modular (routes, controllers, services)
-- Conexión mediante `mysql2`
-- Uso de variables de entorno
+- Uso de pool de conexiones
+- Separación de responsabilidades
 - Endpoints CRUD para productos
+- Endpoints de consulta para bitácoras
 
 ---
 
 ## Objetivos del Proyecto
 
 - Aplicar diseño de bases de datos relacionales
-- Usar procedimientos almacenados para encapsular lógica
-- Implementar validaciones con `SIGNAL`
+- Implementar lógica de negocio con procedimientos almacenados
 - Automatizar cálculos contables
+- Manejar errores y validaciones desde la base de datos
 - Auditar operaciones mediante triggers
-- Integrar MySQL con Node.js
+- Integrar MySQL con Node.js a través de una API REST
 
 ---
 
@@ -170,4 +171,4 @@ El proyecto incluye una API REST básica desarrollada con **Express** que consum
 
 **Pablo Jacob**  
 Estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación  
-Interesado en desarrollo backend y automatización.
+Interesado en desarrollo backend, bases de datos y automatización
