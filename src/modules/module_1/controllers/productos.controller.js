@@ -14,11 +14,16 @@ const createProduct = (req, res) => {
 
     productosServices
         .createProduct(product)
-        .then(() => {
+        .then((result) => {
+            const id_producto = result[0][0][0].id_producto;
+            
             res.status(200).json({
                 message: "Product created successfully",
                 // SHOW ONLY NECESSARY DATA
-                data: product
+                data: {
+                    id_producto,
+                    product
+                }
             });
         })
         .catch((err) => {
@@ -60,10 +65,16 @@ const readProductByID = (req, res) => {
     productosServices
         .readProductByID(id)
         .then((result) => {
+            const descripcion = result[0][0][0].descripcion;
+            const precio_unitario = result[0][0][0].precio_unitario;
+
             res.status(200).json({
                 message: "Product retrieved successfully",
                 // SHOW ONLY NECESSARY DATA
-                data: result[0][0]
+                data: {
+                    descripcion,
+                    precio_unitario
+                }
             });
         })
         .catch((err) => {
@@ -106,7 +117,8 @@ const deleteProduct = (req, res) => {
         .deleteProduct(id)
         .then(() => {
             res.status(200).json({
-                message: "Product deleted successfully"
+                message: "Product deleted successfully",
+                id_producto: id
             });
         })
         .catch((err) => {

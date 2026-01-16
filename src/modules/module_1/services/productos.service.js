@@ -27,21 +27,21 @@ const readAllProucts = () => {
     });
 };
 
-// ADD PARAMETER 'id' FOR SEARCH THE NECESSARY PRODUCT
-const readProductByID = (id) => {
+// ADD PARAMETER 'id_producto' FOR SEARCH THE NECESSARY PRODUCT
+const readProductByID = (id_producto) => {
     return new Promise((resolve, reject) => {
         // NECESSARY QUERY
         const query = "CALL productos_read_id(?);";
 
         // THE PARAMETER 'id' IS ASSOCIATED WITH THE SYMBOL '?' ON NECESSARY QUERY
-        db.execute(query, [id])
+        db.execute(query, [id_producto])
             .then((result) => resolve(result))
             .catch((err) => reject(err));
     });
 };
 
-// ADD PARAMETERS 'id' and 'product' FOR CREATE A PRODUCT
-const updateProduct = (id, product) => {
+// ADD PARAMETERS 'id_producto' and 'product' FOR CREATE A PRODUCT
+const updateProduct = (id_producto, product) => {
     return new Promise((resolve, reject) => {
         // NECESSARY QUERY
         const query = "CALL productos_update(?, ?, ?);";
@@ -50,20 +50,20 @@ const updateProduct = (id, product) => {
         const { descripcion, precio_unitario } = product;
 
         // THE PARAMETERS ARE ASSOCIATED WITH THE SYMBOLS '?' ON NECESSARY QUERY
-        db.execute(query, [id, descripcion, precio_unitario])
+        db.execute(query, [id_producto, descripcion, precio_unitario])
             .then((result) => resolve(result))
             .catch((err) => reject(err));
     });
 };
 
-// ADD PARAMETERS 'id' and 'product' FOR CREATE A PRODUCT
-const deleteProduct = (id) => {
+// ADD PARAMETERS 'id_producto' and 'product' FOR CREATE A PRODUCT
+const deleteProduct = (id_producto) => {
     return new Promise((resolve, reject) => {
         // NECESSARY QUERY
         const query = "CALL productos_delete(?);";
 
         // THE PARAMETERS ARE ASSOCIATED WITH THE SYMBOLS '?' ON NECESSARY QUERY
-        db.execute(query, [id])
+        db.execute(query, [id_producto])
             .then((result) => resolve(result))
             .catch((err) => reject(err));
     });

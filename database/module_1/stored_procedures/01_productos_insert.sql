@@ -10,5 +10,7 @@ BEGIN
 	-- Query necesaria
     INSERT INTO productos(descripcion, precio_unitario)
 		VALUES(p_descripcion, p_precio_unitario);
+        
+	SELECT LAST_INSERT_ID() AS id_producto;
 END //
 DELIMITER ;

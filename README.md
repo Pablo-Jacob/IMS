@@ -1,29 +1,16 @@
 # Integrated Management System (IMS)
 
-Proyecto académico desarrollado como parte de mi formación en **Ingeniería en Sistemas de Información y Ciencias de la Computación**, enfocado en el diseño e implementación de una **base de datos relacional robusta**, integrando lógica de negocio directamente en **MySQL** mediante procedimientos almacenados, validaciones, cálculos automáticos y triggers.
+Proyecto académico desarrollado con **MySQL** y **Node.js**, enfocado en el diseño e implementación de una base de datos relacional robusta, utilizando **procedimientos almacenados**, **validaciones**, **cálculos automáticos**, **triggers** y **tablas de bitácora** para la gestión de productos y ventas.
 
-El sistema simula el flujo completo de una venta, desde el registro del producto hasta el cálculo automático de utilidad, IVA y total de la venta, garantizando integridad, trazabilidad y control de los datos.
+El sistema simula el flujo completo de una venta, donde la mayor parte de la lógica de negocio se ejecuta directamente en la base de datos, asegurando la integridad de la información y automatizando cálculos como utilidad, IVA y total de la venta.
 
----
-
-## Tecnologías Utilizadas
-
-- **MySQL**  
-  - Procedimientos almacenados  
-  - Triggers  
-  - Validaciones con `SIGNAL`  
-  - Manejo de transacciones y relaciones
-- **Node.js**
-- **Express**
-- **mysql2**
-- **JavaScript (ES Modules)**
-- **Git / GitHub**
+Este proyecto fue desarrollado con fines académicos para reforzar conceptos de bases de datos, backend y control de transacciones.
 
 ---
 
 ## Estructura de la Base de Datos
 
-La base de datos se compone de tres tablas principales relacionadas entre sí:
+El sistema está compuesto por tres tablas principales relacionadas entre sí:
 
 ### productos
 Almacena el catálogo de productos disponibles.
@@ -33,8 +20,6 @@ Campos:
 - descripcion
 - precio_unitario
 
----
-
 ### ventas_enc
 Representa el encabezado de cada venta.
 
@@ -43,10 +28,8 @@ Campos:
 - fecha
 - total
 
----
-
 ### ventas_det
-Contiene el detalle de los productos asociados a cada venta.
+Almacena el detalle de los productos asociados a cada venta.
 
 Campos:
 - id_venta_det (PK)
@@ -58,51 +41,69 @@ Campos:
 
 ---
 
-## Lógica de Negocio Implementada en la Base de Datos
+## Funcionalidades Principales
 
-Uno de los principales objetivos del proyecto fue trasladar la lógica crítica al motor de base de datos para asegurar consistencia y control.
+### Módulo de Productos
+Incluye procedimientos almacenados para:
+- Crear productos
+- Listar productos
+- Consultar productos por ID
+- Actualizar productos
+- Eliminar productos
+- Validar existencia mediante el procedimiento `producto_no_existe`
 
-### Validaciones
-- Verificación de existencia de productos
-- Verificación de encabezados y detalles de venta
-- Uso de `SIGNAL SQLSTATE` para manejar errores controlados
-
-Ejemplo:
-- “Producto No Existe”
-- “Encabezado No Existe”
-- “Detalle No Existe”
-
----
-
-## Cálculos Automáticos
-
-Los cálculos se realizan mediante procedimientos almacenados:
-
-- **Utilidad:**  
-  Se calcula un margen del **20%** sobre el precio unitario del producto.
-
-- **IVA:**  
-  Se calcula el **12%** sobre el precio con utilidad incluida.
-
-- **Precio de Venta:**  
-  Precio final = precio unitario + utilidad + IVA.
-
-- **Total de Venta:**  
-  Se calcula automáticamente a partir del detalle de la venta.
-
-Estos cálculos se ejecutan sin intervención manual y se reflejan directamente en la base de datos.
+El objetivo es evitar operaciones inválidas y mantener consistencia en el catálogo.
 
 ---
 
-## Gestión de Ventas
+### Módulo de Ventas – Encabezado
+Permite:
+- Registrar ventas
+- Consultar ventas (general y por ID)
+- Actualizar encabezados
+- Eliminar ventas
+- Validar existencia mediante `venta_enc_no_existe`
 
-El sistema permite manejar una venta completa de forma controlada:
+---
 
+### Módulo de Ventas – Detalle
+Incluye:
+- Inserción de detalles de venta
 - Lectura general y por ID
-- Actualización de encabezado y detalle
-- Eliminación de ventas completas
+- Actualización de registros
+- Eliminación de detalles
+- Validación con `venta_det_no_existe`
 
-Esto garantiza coherencia entre el encabezado y el detalle de cada venta.
+---
+
+## Manejo de Venta Completa
+
+El sistema permite trabajar una venta de forma integral combinando encabezado y detalle mediante procedimientos como:
+
+- venta_completa_read
+- venta_completa_read_id
+- venta_completa_update
+- venta_completa_delete
+
+Esto garantiza operaciones consistentes y controladas sobre la información.
+
+---
+
+## Cálculos Automáticos en Base de Datos
+
+Los cálculos se realizan directamente en MySQL mediante procedimientos almacenados:
+
+- **calcular_utilidad**  
+  Aplica un margen del 20% sobre el precio unitario del producto.
+
+- **calcular_iva**  
+  Calcula el IVA (12%) sobre el precio con utilidad incluida.
+
+- **calcular_precio_venta**  
+  Obtiene el precio final del producto.
+
+- **calcular_total_venta**  
+  Actualiza automáticamente el total del encabezado de la venta.
 
 ---
 
@@ -110,60 +111,61 @@ Esto garantiza coherencia entre el encabezado y el detalle de cada venta.
 
 Se implementaron tablas de bitácora para auditar las operaciones realizadas en el sistema.
 
-### Operaciones Registradas
+### tipo_operacion
+Define el tipo de operación:
 - INSERT
 - UPDATE
 - DELETE
 
-Cada registro almacena:
-- Identificador del registro afectado
-- Fecha y hora
-- Usuario
-- Tipo de operación
+### productos_bitacora
+### ventas_enc_bitacora
 
-Las bitácoras se generan automáticamente mediante triggers, sin intervención del backend.
+Cada registro almacena:
+- ID del registro afectado
+- Fecha y hora
+- Usuario que realizó la operación
+- Tipo de operación
 
 ---
 
 ## Triggers Implementados
 
-Se crearon triggers para las siguientes tablas:
+Los triggers registran automáticamente las operaciones realizadas sobre las tablas principales.
 
 ### Productos
-- AFTER INSERT
-- AFTER UPDATE
-- AFTER DELETE
+- INSERT
+- UPDATE
+- DELETE
 
 ### Ventas (Encabezado)
-- AFTER INSERT
-- AFTER UPDATE
-- AFTER DELETE
+- INSERT
+- UPDATE
+- DELETE
 
-**Objetivo:** mantener un historial confiable de todas las operaciones realizadas.
+El objetivo es mantener un historial de cambios sin intervención manual.
 
 ---
 
-## Backend (API REST)
+## Backend (Node.js)
 
-El proyecto incluye una API REST básica desarrollada con **Node.js y Express**, que consume los procedimientos almacenados de la base de datos.
+El proyecto incluye una API REST básica desarrollada con **Express**, la cual consume los procedimientos almacenados de MySQL.
 
 Características:
 - Arquitectura modular (routes, controllers, services)
-- Uso de pool de conexiones
-- Separación de responsabilidades
-- Endpoints CRUD para productos
-- Endpoints de consulta para bitácoras
+- Conexión mediante mysql2
+- Uso de variables de entorno
+- Endpoints CRUD para productos y ventas
 
 ---
 
 ## Objetivos del Proyecto
 
 - Aplicar diseño de bases de datos relacionales
-- Implementar lógica de negocio con procedimientos almacenados
+- Encapsular lógica de negocio en procedimientos almacenados
+- Implementar validaciones con SIGNAL
 - Automatizar cálculos contables
-- Manejar errores y validaciones desde la base de datos
 - Auditar operaciones mediante triggers
-- Integrar MySQL con Node.js a través de una API REST
+- Integrar MySQL con Node.js
 
 ---
 
@@ -171,4 +173,4 @@ Características:
 
 **Pablo Jacob**  
 Estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación  
-Interesado en desarrollo backend, bases de datos y automatización
+Interesado en desarrollo backend y aseguramiento de calidad (QA)

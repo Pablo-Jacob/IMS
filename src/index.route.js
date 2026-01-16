@@ -1,5 +1,6 @@
 import { Router } from "express";
 import productosRouter from "./modules/module_1/routes/productos.route.js";
+import ventasRouter from "./modules/module_1/routes/ventas.route.js";
 import productosBitacoraRouter from "./modules/module_1/routes/productos.bitacora.route.js";
 import ventasEncBitacoraRouter from "./modules/module_1/routes/ventas.enc.bitacora.route.js";
 
@@ -17,10 +18,13 @@ indexRouter.get(prefix, (req, res) => {
 // ROUTES FROM 'productos.route.js' file
 indexRouter.use(`${prefix}/productos`, productosRouter);
 
+// ROUTES FROM 'ventas.route.js' file
+indexRouter.use(`${prefix}/ventas`, ventasRouter);
+
 // ROUTES FROM 'productos.bitacora.route.js' file
-indexRouter.use(`${prefix}/productos_bitacora`, productosBitacoraRouter);
+indexRouter.use(`${prefix}/productos/bitacora`, productosBitacoraRouter);
 
 // ROUTES FROM 'ventas.enc.bitacora.route.js' file
-indexRouter.use(`${prefix}/ventas_enc_bitacora`, ventasEncBitacoraRouter);
+indexRouter.use(`${prefix}/ventas/header/bitacora`, ventasEncBitacoraRouter);
 
 export default indexRouter;
