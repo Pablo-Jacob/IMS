@@ -1,10 +1,36 @@
 # Integrated Management System (IMS)
 
-Proyecto académico desarrollado con **MySQL**, **Node.js** y una **integración básica de frontend en HTML**, enfocado principalmente en el diseño de bases de datos relacionales y la implementación de lógica de negocio directamente en la base de datos mediante **procedimientos almacenados**, **triggers** y **tablas de bitácora**.
+Integrated Management System (IMS) es un proyecto académico desarrollado con MySQL, Node.js y una integración básica de frontend en HTML, enfocado principalmente en el diseño de bases de datos relacionales y la implementación de lógica de negocio directamente en la base de datos mediante procedimientos almacenados, triggers y tablas de bitácora.
 
-El sistema simula el flujo completo de una venta, garantizando la integridad de los datos y automatizando cálculos como utilidad, IVA y total de venta desde la base de datos.
+El sistema simula el flujo completo de una venta, priorizando la integridad de los datos, la automatización de cálculos (utilidad, IVA y total de venta) y una interacción controlada entre la base de datos y el backend.
 
-Actualmente, el frontend funciona como una capa inicial de navegación y visualización, con la idea de seguir ampliándolo con más pantallas, formularios y lógica en **JavaScript**.
+Actualmente el proyecto se encuentra en evolución, incorporando una estructura de frontend más organizada, nuevas pantallas y lógica en JavaScript para el consumo progresivo de la API REST.
+
+---
+
+## Descripción General del Proyecto
+
+Este sistema fue desarrollado como parte de mi formación en Ingeniería en Sistemas de Información y Ciencias de la Computación, con el objetivo de fortalecer mis conocimientos en:
+
+- Diseño de bases de datos relacionales
+- Lógica de negocio en base de datos
+- Integración Backend + Base de Datos
+- Arquitectura modular en Node.js
+- Documentación y auditoría de operaciones
+
+El enfoque principal del proyecto no es solo el CRUD tradicional, sino la implementación de reglas de negocio directamente en MySQL para garantizar consistencia, validaciones y automatización de procesos.
+
+---
+
+## Arquitectura del Sistema
+
+El proyecto está dividido en tres capas principales:
+
+- Base de Datos (MySQL)
+- Backend (Node.js + Express)
+- Frontend básico (HTML, con futura integración en JavaScript)
+
+La comunicación entre el backend y la base de datos se realiza mediante procedimientos almacenados, evitando el uso de ORM y permitiendo un mayor control sobre las operaciones.
 
 ---
 
@@ -13,7 +39,7 @@ Actualmente, el frontend funciona como una capa inicial de navegación y visuali
 El sistema se compone de tres tablas principales relacionadas entre sí:
 
 ### productos
-Almacena el catálogo de productos.
+Almacena el catálogo de productos disponibles en el sistema.
 
 Campos:
 - id_producto (PK)
@@ -21,7 +47,7 @@ Campos:
 - precio_unitario
 
 ### ventas_enc
-Representa el encabezado de cada venta.
+Representa el encabezado de cada venta registrada.
 
 Campos:
 - id_venta_enc (PK)
@@ -29,7 +55,7 @@ Campos:
 - total
 
 ### ventas_det
-Detalle de los productos vendidos en cada venta.
+Contiene el detalle de los productos vendidos en cada transacción.
 
 Campos:
 - id_venta_det (PK)
@@ -41,124 +67,121 @@ Campos:
 
 ---
 
-## Lógica de Negocio y Procedimientos Almacenados
+## Lógica de Negocio en Base de Datos
 
-Toda la lógica principal del sistema se maneja directamente en la base de datos mediante procedimientos almacenados.
+Toda la lógica principal del sistema se gestiona directamente desde MySQL mediante procedimientos almacenados, lo que permite:
+
+- Validar la existencia de registros
+- Controlar operaciones CRUD de forma segura
+- Automatizar cálculos
+- Mantener la integridad de los datos
 
 ### Módulo de Productos
 Incluye procedimientos para:
 - Crear productos
 - Listar productos
-- Consultar productos por ID
-- Actualizar productos
+- Consultar por ID
+- Actualizar registros
 - Eliminar productos
-- Validar existencia mediante `producto_no_existe`
-
-El objetivo es evitar operaciones inválidas y mantener la consistencia de los datos.
+- Validar existencia mediante procedimientos específicos
 
 ---
 
-### Módulo de Ventas – Encabezado (ventas_enc)
+### Módulo de Ventas (Encabezado y Detalle)
 Permite:
-- Insertar ventas
-- Leer ventas (general y por ID)
-- Actualizar encabezados
-- Eliminar ventas
-- Validar existencia con `venta_enc_no_existe`
-
----
-
-### Módulo de Ventas – Detalle (ventas_det)
-Incluye:
-- Inserción de detalles de venta
+- Inserción controlada de ventas
 - Lectura general y por ID
 - Actualización de registros
-- Eliminación de detalles
-- Validación mediante `venta_det_no_existe`
+- Eliminación lógica y validada
+- Gestión completa de ventas mediante encabezado y detalle
 
 ---
 
 ## Cálculos Automáticos
 
-Los cálculos se realizan directamente en la base de datos:
+Los cálculos se ejecutan directamente en la base de datos mediante procedimientos almacenados:
 
-- **calcular_utilidad**  
-  Aplica un 20% de margen de utilidad sobre el precio unitario.
+- calcular_utilidad: aplica un margen de utilidad del 20%
+- calcular_iva: calcula el IVA del 12%
+- calcular_precio_venta: obtiene el precio final del producto
+- calcular_total_venta: actualiza automáticamente el total del encabezado
 
-- **calcular_iva**  
-  Calcula el IVA del 12% sobre el precio con utilidad incluida.
-
-- **calcular_precio_venta**  
-  Obtiene el precio final del producto.
-
-- **calcular_total_venta**  
-  Actualiza automáticamente el total del encabezado de la venta.
-
----
-
-## Venta Completa
-
-El sistema permite gestionar una venta completa combinando encabezado y detalle mediante procedimientos almacenados que permiten consultar, actualizar o eliminar una venta de forma controlada.
+Este enfoque simula escenarios reales donde la lógica contable y de negocio se centraliza en la base de datos.
 
 ---
 
 ## Bitácoras y Auditoría
 
-Se implementaron tablas de bitácora para auditar las operaciones realizadas sobre:
+El sistema implementa tablas de bitácora para auditar operaciones críticas sobre:
 
 - Productos
 - Encabezados de venta
 
-Cada registro almacena:
+Cada registro de auditoría almacena:
 - ID afectado
 - Fecha y hora
 - Usuario
 - Tipo de operación (INSERT, UPDATE, DELETE)
 
-Los registros se generan automáticamente mediante triggers.
+Las bitácoras se generan automáticamente mediante triggers, permitiendo trazabilidad de los cambios.
 
 ---
 
-## Backend (Node.js)
+## Backend (Node.js + Express)
 
-El proyecto incluye una API REST desarrollada con **Express**, que consume directamente los procedimientos almacenados:
+El backend está desarrollado con arquitectura modular y consume directamente los procedimientos almacenados.
 
-- Arquitectura modular (routes, controllers, services)
-- Conexión a MySQL mediante `mysql2`
+Características principales:
+- API REST estructurada por módulos
+- Uso de Express.js
+- Conexión a MySQL mediante mysql2
 - Uso de variables de entorno
 - Endpoints CRUD para productos y ventas
-- Sin uso de ORM, interacción directa con la base de datos
+- Middlewares para organización del flujo de peticiones
+- Separación por rutas, controladores y servicios
 
 ---
 
-## Frontend (HTML)
+## Frontend (HTML + estructura en evolución)
 
-El proyecto cuenta con un frontend básico desarrollado en **HTML**, que permite:
+El proyecto incluye un frontend básico desarrollado en HTML que actualmente permite:
 
 - Navegación inicial del sistema
-- Acceso a pantallas de productos
-- Estructura base para futuras funcionalidades
+- Estructura de páginas organizadas por módulos
+- Base visual para interacción con la API
 
-La idea es seguir ampliando el frontend con:
-- Formularios para productos y ventas
+Actualmente se está ampliando con:
+- Nuevas pantallas (productos y futuras ventas)
+- Formularios HTML
 - Consumo de la API mediante JavaScript
-- Más pantallas y mejoras visuales
+- Mejora progresiva de la estructura de carpetas (assets, js, pages)
+
+El frontend no forma parte del requerimiento académico principal, pero se está integrando como mejora personal del proyecto.
 
 ---
 
-## Objetivos del Proyecto
+## Estado Actual del Proyecto
 
-- Aplicar diseño de bases de datos relacionales
-- Implementar lógica de negocio con procedimientos almacenados
-- Automatizar cálculos contables
-- Auditar operaciones mediante triggers
-- Integrar MySQL con Node.js
-- Sentar las bases para un frontend más completo
+- Backend funcional con API REST
+- Base de datos con lógica de negocio centralizada
+- Bitácoras automatizadas mediante triggers
+- Frontend básico en proceso de expansión
+- Estructura del proyecto en mejora continua
+
+---
+
+## Objetivos Académicos y Técnicos
+
+- Aplicar bases de datos relacionales en un sistema realista
+- Implementar lógica de negocio en MySQL
+- Integrar Backend y Base de Datos de forma modular
+- Simular auditoría de operaciones con triggers
+- Sentar las bases para un frontend más completo con JavaScript
 
 ---
 
 ## Autor
 
-**Pablo Jacob**  
+Pablo Jacob  
 Estudiante de Ingeniería en Sistemas de Información y Ciencias de la Computación  
-Interesado en desarrollo backend y bases de datos
+Interesado en desarrollo backend, bases de datos y calidad de software

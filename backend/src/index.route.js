@@ -15,16 +15,16 @@ indexRouter.get(prefix, (req, res) => {
     res.send(`<h4>API OK</h4>`);
 });
 
-// ROUTES FROM 'productos.route.js' file
-indexRouter.use(`${prefix}/productos`, productosRouter);
-
-// ROUTES FROM 'ventas.route.js' file
-indexRouter.use(`${prefix}/ventas`, ventasRouter);
-
 // ROUTES FROM 'productos.bitacora.route.js' file
 indexRouter.use(`${prefix}/productos/bitacora`, productosBitacoraRouter);
 
 // ROUTES FROM 'ventas.enc.bitacora.route.js' file
 indexRouter.use(`${prefix}/ventas/header/bitacora`, ventasEncBitacoraRouter);
+
+// ROUTES FROM 'productos.route.js' file
+indexRouter.use(`${prefix}/productos`, productosRouter);
+
+// ROUTES FROM 'ventas.route.js' file
+indexRouter.use(`${prefix}/ventas`, ventasRouter);
 
 export default indexRouter;

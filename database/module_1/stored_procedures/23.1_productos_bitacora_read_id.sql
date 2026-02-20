@@ -14,6 +14,6 @@ BEGIN
         FROM productos_bitacora
         INNER JOIN tipo_operacion
         ON productos_bitacora.id_operacion = tipo_operacion.id_operacion
-        AND productos_bitacora.id_producto = p_id_producto;
+        WHERE productos_bitacora.id_producto = p_id_producto;
 END //
 DELIMITER ;

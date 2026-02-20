@@ -1,38 +1,36 @@
 import productosBitacoraService from "../services/productos.bitacora.service.js";
 
 // ALL PRODUCTS LOGS
-const readAllLogsProducts = (req, res) => {
-    productosBitacoraService
-        .readAllLogsProducts()
-        .then((result) => {
-            res.status(200).json({
-                message: "Products logs retrieved succesfully",
-                // SHOW ONLY NECESSARY DATA
-                data: result[0][0]
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+const readAllLogsProducts = async(req, res, next) => {
+    try {
+        const result = await productosBitacoraService.readAllLogsProducts();
+
+        res.status(200).json({
+            message: "Product retrieved successfully",
+            data: result[0][0]
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 // PRODUCT LOG BY ID
-const readLogProductByID = (req, res) => {
+const readLogProductByID = async(req, res, next) => {
     // EXTRACT ID FOR PRODUCT
     const { id } = req.params;
 
-    productosBitacoraService
-        .readLogProductByID(id)
-        .then((result) => {
-            res.status(200).json({
-                message: "Product log retrieved succesfully",
-                // SHOW ONLY NECESSARY DATA
-                data: result[0][0]
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+    try {
+        const result = await productosBitacoraService.readLogProductByID(id);
+
+        res.status(200).json({
+            message: "Product log retrieved succesfully",
+            data: result[0][0]
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 export default {

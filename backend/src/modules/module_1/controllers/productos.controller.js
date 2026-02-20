@@ -5,30 +5,24 @@ import productosServices from "../services/productos.service.js";
 */
 
 // CREATE PRODUCT
-const createProduct = (req, res) => {
+const createProduct = async(req, res, next) => {
     // SEND A MESSAGE IN HTML FORMAT
     // res.send(`<h4>Creating Product>/h4>`);
 
     // EXTRACT DATA FOR PRODUCT
     const product = req.body;
 
-    productosServices
-        .createProduct(product)
-        .then((result) => {
-            const id_producto = result[0][0][0].id_producto;
-            
-            res.status(200).json({
-                message: "Product created successfully",
-                // SHOW ONLY NECESSARY DATA
-                data: {
-                    id_producto,
-                    product
-                }
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+    try {
+        const result = await productosServices.createProduct(product);
+
+        res.status(200).json({
+            message: "Product created successfully",
+            data: product
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 /*
@@ -36,54 +30,46 @@ const createProduct = (req, res) => {
 */
 
 // ALL PRODUCTS
-const readAllProucts = (req, res) => {
+const readAllProucts = async(req, res, next) => {
     // SEND A MESSAGE IN HTML FORMAT
     // res.send(`<h4>Reading All Products>/h4>`);
 
-    productosServices
-        .readAllProucts()
-        .then((result) => {
-            res.status(200).json({
-                message: "Products retrieved successfully",
-                // SHOW ONLY NECESSARY DATA
-                data: result[0][0]
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+    try {
+        const result = await productosServices.readAllProucts();
+
+        res.status(200).json({
+            message: "Products retrieved successfully",
+            data: result[0][0]
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 // PRODUCT BY ID
-const readProductByID = (req, res) => {
+const readProductByID = async(req, res, next) => {
     // SEND A MESSAGE IN HTML FORMAT
     // res.send(`<h4>Reading Product by ID>/h4>`);
 
     // EXTRACT ID FOR PRODUCT
     const { id } = req.params;
 
-    productosServices
-        .readProductByID(id)
-        .then((result) => {
-            const descripcion = result[0][0][0].descripcion;
-            const precio_unitario = result[0][0][0].precio_unitario;
+    try {
+        const result = await productosServices.readProductByID(id);
 
-            res.status(200).json({
-                message: "Product retrieved successfully",
-                // SHOW ONLY NECESSARY DATA
-                data: {
-                    descripcion,
-                    precio_unitario
-                }
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+        res.status(200).json({
+            message: "Product created successfully",
+            data: result[0][0][0]
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 // UPDATE PRODUCT
-const updateProduct = (req, res) => {
+const updateProduct = async(req, res, next) => {
     // SEND A MESSAGE IN HTML FORMAT
     // res.send(`<h4>Updating Product>/h4>`);
 
@@ -91,39 +77,38 @@ const updateProduct = (req, res) => {
     const { id } = req.params;
     const product = req.body;
 
-    productosServices
-        .updateProduct(id, product)
-        .then(() => {
-            res.status(200).json({
-                message: "Product update successfully",
-                // SHOW ONLY NECESSARY DATA
-                data: product
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+    try {
+        const result = await productosServices.updateProduct(id, product);
+
+        res.status(200).json({
+            message: "Product update successfully",
+            data: product
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 // DELETE PRODUCT
-const deleteProduct = (req, res) => {
+const deleteProduct = async(req, res, next) => {
     // SEND A MESSAGE IN HTML FORMAT
     // res.send(`<h4>Deleting Product>/h4>`);
 
     // EXTRACT DATA FOR PRODUCT
     const { id } = req.params;
 
-    productosServices
-        .deleteProduct(id)
-        .then(() => {
-            res.status(200).json({
-                message: "Product deleted successfully",
-                id_producto: id
-            });
-        })
-        .catch((err) => {
-            res.status(500).send(err);
+    try {
+        const result = await productosServices.deleteProduct(id);
+
+        res.status(200).json({
+            message: "Product deleted successfully",
+            data: id
         });
+    }
+    catch(err) {
+        next(err);
+    }
 };
 
 export default {
